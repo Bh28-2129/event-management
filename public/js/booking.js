@@ -1,88 +1,75 @@
 let currentUser = null;
 
-// Check authentication and load appropriate form
-async function init() {
-  try {
-    const response = await fetch('/api/auth/me');
-    if (!response.ok) {
-      window.location.href = '/';
-      return;
-    }
-    const data = await response.json();
-    currentUser = data.user;
-    document.getElementById('userName').textContent = `Hello, ${data.user.name}`;
+// Initialize page
+function init() {
+  const userId = localStorage.getItem("userId");
+  const userName = localStorage.getItem("userName");
+  const userRole = localStorage.getItem("userRole");
 
-    if (data.user.role === 'ORGANIZER') {
-      document.getElementById('formTitle').textContent = 'Create Event';
-      document.getElementById('organizerForm').style.display = 'block';
-    } else {
-      document.getElementById('formTitle').textContent = 'Book Event';
-      document.getElementById('participantForm').style.display = 'block';
-      loadAllEvents();
-    }
-  } catch (error) {
-    window.location.href = '/';
+  if (!userId || !userRole) {
+    window.location.href = "/";
+    return;
+  }
+
+  currentUser = { id: userId, name: userName, role: userRole };
+
+  document.getElementById("userName").textContent = `Hello, ${userName}`;
+
+  if (userRole === "ORGANIZER") {
+    document.getElementById("formTitle").textContent = "Create Event";
+    document.getElementById("organizerForm").style.display = "block";
+  } else {
+    document.getElementById("formTitle").textContent = "Book Event";
+    document.getElementById("participantForm").style.display = "block";
+    loadAllEvents();
   }
 }
 
-// Organizer: Create Event
-document.getElementById('organizerForm')?.addEventListener('submit', async (e) => {
+// ORGANIZER: Create Event
+document.getElementById("organizerForm")?.addEventListener("submit", async (e) => {
   e.preventDefault();
   const formData = new FormData(e.target);
   const data = Object.fromEntries(formData);
 
+  data.organizerId = currentUser.id;
+
   try {
-    const response = await fetch('/api/events', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const response = await fetch("/api/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
 
     const result = await response.json();
 
     if (response.ok) {
-      showMessage('Event created successfully!', 'success');
+      showMessage("Event created successfully!", "success");
       e.target.reset();
     } else {
-      showMessage(result.error || 'Failed to create event', 'danger');
+      showMessage(result.error || "Failed to create event", "danger");
     }
   } catch (error) {
-    showMessage('An error occurred', 'danger');
-  }
-});
-
-// Participant: Search Events
-document.getElementById('searchBtn')?.addEventListener('click', async () => {
-  const searchTerm = document.getElementById('eventSearch').value.trim();
-  if (!searchTerm) {
-    loadAllEvents();
-    return;
-  }
-
-  try {
-    const response = await fetch(`/api/events/search/${encodeURIComponent(searchTerm)}`);
-    const data = await response.json();
-    displayEvents(data.events);
-  } catch (error) {
-    showMessage('Search failed', 'danger');
+    showMessage("An error occurred", "danger");
   }
 });
 
 // Load all events
 async function loadAllEvents() {
   try {
-    const response = await fetch('/api/events');
+    const response = await fetch("/api/events");
     const data = await response.json();
+
+    // FIX: API returns { events: [...] }
     displayEvents(data.events);
   } catch (error) {
-    showMessage('Failed to load events', 'danger');
+    showMessage("Failed to load events", "danger");
   }
 }
 
 // Display events list
 function displayEvents(events) {
-  const eventsList = document.getElementById('eventsList');
-  
+  const eventsList = document.getElementById("eventsList");
+
   if (!events || events.length === 0) {
     eventsList.innerHTML = '<div class="alert alert-info">No events found</div>';
     return;
@@ -91,7 +78,7 @@ function displayEvents(events) {
   eventsList.innerHTML = events.map(event => {
     const availableSpots = event.capacity - event._count.bookings;
     const eventDate = new Date(event.date).toLocaleDateString();
-    
+
     return `
       <div class="card event-card mb-2" onclick="selectEvent(${event.id}, '${event.name}', '${eventDate}', '${event.time}', '${event.venue}', ${availableSpots})">
         <div class="card-body">
@@ -103,38 +90,41 @@ function displayEvents(events) {
         </div>
       </div>
     `;
-  }).join('');
+  }).join("");
 }
 
 // Select event for booking
 function selectEvent(id, name, date, time, venue, availableSpots) {
   if (availableSpots <= 0) {
-    showMessage('This event is fully booked', 'warning');
+    showMessage("This event is fully booked", "warning");
     return;
   }
 
-  document.getElementById('selectedEventId').value = id;
-  document.getElementById('selectedEventName').textContent = name;
-  document.getElementById('selectedEventDetails').textContent = 
+  document.getElementById("selectedEventId").value = id;
+  document.getElementById("selectedEventName").textContent = name;
+  document.getElementById("selectedEventDetails").textContent =
     `Date: ${date} | Time: ${time} | Venue: ${venue}`;
-  document.getElementById('selectedEventInfo').style.display = 'block';
+  document.getElementById("selectedEventInfo").style.display = "block";
 }
 
-// Participant: Book Event
-document.getElementById('participantForm')?.addEventListener('submit', async (e) => {
+// PARTICIPANT: Book Event
+document.getElementById("participantForm")?.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const eventId = document.getElementById('selectedEventId').value;
+  const eventId = document.getElementById("selectedEventId").value;
 
   if (!eventId) {
-    showMessage('Please select an event', 'warning');
+    showMessage("Please select an event", "warning");
     return;
   }
 
   try {
-    const response = await fetch('/api/bookings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ eventId })
+    const response = await fetch("/api/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        eventId,
+        userId: currentUser.id
+      })
     });
 
     const result = await response.json();
@@ -142,21 +132,22 @@ document.getElementById('participantForm')?.addEventListener('submit', async (e)
     if (response.ok) {
       window.location.href = `/confirmation?bookingId=${result.booking.bookingId}`;
     } else {
-      showMessage(result.error || 'Booking failed', 'danger');
+      showMessage(result.error || "Booking failed", "danger");
     }
   } catch (error) {
-    showMessage('An error occurred', 'danger');
+    showMessage("An error occurred", "danger");
   }
 });
 
-// Logout
-document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-  await fetch('/api/auth/logout', { method: 'POST' });
-  window.location.href = '/';
+// Logout (frontend only now)
+document.getElementById("logoutBtn")?.addEventListener("click", () => {
+  localStorage.clear();
+  window.location.href = "/";
 });
 
+// Show messages
 function showMessage(message, type) {
-  const messageDiv = document.getElementById('message');
+  const messageDiv = document.getElementById("message");
   messageDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
 }
 
