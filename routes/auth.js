@@ -30,7 +30,9 @@ router.post('/register', async (req, res) => {
   req.session.userId = user.id;
 }
 
-    req.session.userRole = user.role;
+    if (req.session) {
+  req.session.userRole = user.role;
+}
     req.session.userName = user.name;
 
     res.json({ success: true, user: { id: user.id, name: user.name, role: user.role } });
@@ -58,7 +60,9 @@ router.post('/login', async (req, res) => {
   req.session.userId = user.id;
 }
 
-    req.session.userRole = user.role;
+   if (req.session) {
+  req.session.userRole = user.role;
+}
     req.session.userName = user.name;
 
     res.json({ success: true, user: { id: user.id, name: user.name, role: user.role } });
