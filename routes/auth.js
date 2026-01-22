@@ -26,7 +26,10 @@ router.post('/register', async (req, res) => {
       }
     });
 
-    req.session.userId = user.id;
+   if (req.session) {
+  req.session.userId = user.id;
+}
+
     req.session.userRole = user.role;
     req.session.userName = user.name;
 
@@ -51,7 +54,10 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    req.session.userId = user.id;
+   if (req.session) {
+  req.session.userId = user.id;
+}
+
     req.session.userRole = user.role;
     req.session.userName = user.name;
 
