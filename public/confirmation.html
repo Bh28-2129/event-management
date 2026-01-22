@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Confirmation</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="/main">Event Management</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/main">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/booking">Book Event</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card shadow">
+          <div class="card-header bg-success text-white text-center">
+            <h3 class="mb-0">✓ Booking Confirmed</h3>
+          </div>
+          <div class="card-body p-4">
+            <div id="confirmationDetails">
+              <div class="text-center mb-4">
+                <div class="alert alert-success">
+                  <h4>Your booking has been confirmed!</h4>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-4 fw-bold">Booking ID:</div>
+                <div class="col-md-8" id="bookingId"></div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-4 fw-bold">Event Name:</div>
+                <div class="col-md-8" id="eventName"></div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-4 fw-bold">Participant:</div>
+                <div class="col-md-8" id="participantName"></div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-4 fw-bold">Email:</div>
+                <div class="col-md-8" id="participantEmail"></div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-4 fw-bold">Event Date:</div>
+                <div class="col-md-8" id="eventDate"></div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-4 fw-bold">Event Time:</div>
+                <div class="col-md-8" id="eventTime"></div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-4 fw-bold">Venue:</div>
+                <div class="col-md-8" id="eventVenue"></div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-4 fw-bold">Booked On:</div>
+                <div class="col-md-8" id="bookingDate"></div>
+              </div>
+
+              <div class="text-center mt-4">
+                <a href="/main" class="btn btn-primary">Back to Home</a>
+                <button onclick="window.print()" class="btn btn-secondary">Print Confirmation</button>
+              </div>
+            </div>
+
+            <div id="errorMessage" class="alert alert-danger" style="display: none;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/confirmation.js"></script>
+</body>
+</html>
