@@ -1,9 +1,9 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const { PrismaClient } = require('@prisma/client');
+const prisma = require("../prismaClient");
 
 const router = express.Router();
-const prisma = new PrismaClient();
+
 
 // Register
 router.post('/register', async (req, res) => {
