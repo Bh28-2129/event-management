@@ -8,12 +8,11 @@ const eventRoutes = require('./routes/events');
 const bookingRoutes = require('./routes/bookings');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(session({
   secret: process.env.SESSION_SECRET || 'secret-key',
   resave: false,
@@ -26,7 +25,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/bookings', bookingRoutes);
 
-// Serve HTML pages
+// Serve static frontend
+app.use(express.static(path.join(__dirname, 'public')));
+
+// HTML routes
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -43,6 +45,5 @@ app.get('/confirmation', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'confirmation.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+// ✅ Export app instead of app.listen
+module.exports = app;
